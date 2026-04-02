@@ -1,0 +1,84 @@
+"""
+Database module for managing tribes and clans
+Handles all SQLite operations for the DNA Shezhire AI app
+"""
+
+import sqlite3
+import os
+
+db_path = os.path.join(os.path.dirname(__file__), "tribes.db")
+
+class TribesDB:
+    """Database interface for tribes and clans"""
+    
+    def __init__(self):
+        self.db_path = db_path
+    
+    @staticmethod
+    def get_tribe_by_haplogroup(haplogroup):
+        """Get tribe info by haplogroup"""
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM tribes WHERE haplogroup = ?", (haplogroup,))
+        result = cursor.fetchone()
+        conn.close()
+        return result
+    
+    @staticmethod
+    def get_tribe_by_name(tribe_name):
+        """Get tribe info by name"""
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM tribes WHERE name = ?", (tribe_name,))
+        result = cursor.fetchone()
+        conn.close()
+        return result
+    
+    @staticmethod
+    def get_all_tribes():
+        """Get all tribes ordered by name"""
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM tribes ORDER BY name")
+        results = cursor.fetchall()
+        conn.close()
+        return results
+    
+    @staticmethod
+    def get_tribe_clans(tribe_id):
+        """Get all clans for a tribe"""
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM clans WHERE tribe_id = ? ORDER BY clan_name", (tribe_id,))
+        results = cursor.fetchall()
+        conn.close()
+        return results
+    
+    @staticmethod
+    def get_tribes_by_juz(juz):
+        """Get all tribes for a specific juz"""
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM tribes WHERE juz = ? ORDER BY name", (juz,))
+        results = cursor.fetchall()
+        conn.close()
+        return results
+    
+    @staticmethod
+    def search_tribe(query):
+        """Search tribes by name or description"""
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT * FROM tribes WHERE name LIKE ? OR description LIKE ? ORDER BY name",
+            (f"%{query}%", f"%{query}%")
+        )
+        results = cursor.fetchall()
+        conn.close()
+        return results
